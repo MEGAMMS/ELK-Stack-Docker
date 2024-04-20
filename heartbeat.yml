@@ -1,0 +1,63 @@
+eartbeat.config.monitors:
+    # Directory + glob pattern to search for configuration files
+    path: ${path.config}/monitors.d/*.yml
+    # If enabled, heartbeat will periodically check the config.monitors path for >
+    reload.enabled: true
+    # How often to check for changes
+    reload.period: 5s
+# Configure monitors inline
+heartbeat.monitors:
+    - type: http
+      # Set enabled to true (or delete the following line) to enable this monitor
+      enabled: true
+      # ID used to uniquely identify this monitor in Elasticsearch even if the conf>
+      id: ElasticsearchHost
+      # Human readable display name for this service in Uptime UI and elsewhere
+      name: Elastic Search
+      # List of URLs to query
+      urls: ["https://es01:9200"]
+      # Configure task schedule
+      schedule: '@every 10s'
+      username: ${ELASTIC_USER}
+      password: ${ELASTIC_PASSWORD}
+      ssl.enabled: true
+      ssl.certificate_authorities: "certs/ca/ca.crt"
+
+    # Total test connection and data exchange timeout
+    #timeout: 16s
+    # Name of corresponding APM service, if Elastic APM is in use for the monitor>
+    #service.name: my-apm-service-name
+    - type: https
+      id: sample-google
+      enabled: false
+      name: Google
+      urls: ["https://google.com"]
+      schedule: '@every 60s'
+    
+    - id: KibanaHost
+      enabled: true
+      name: Kibana
+      type: http
+      urls: ["http://kibana:5601"]
+      schedule: '@every 10s'
+
+setup.template.settings:
+    index.number_of_shards: 1
+    index.codec: best_compression
+    #_source.enabled: false
+
+setup.kibana:
+    host: ${KIBANA_HOSTS}
+    username: ${ELASTIC_USER}
+    password: ${ELASTIC_PASSWORD}
+
+output.elasticsearch:
+    hosts: ${ELASTIC_HOSTS}
+    username: ${ELASTIC_USER}
+    password: ${ELASTIC_PASSWORD}
+    ssl.enabled: true
+    ssl.certificate_authorities: "certs/ca/ca.crt"
+
+processors:
+  - add_observer_metadata:
+
